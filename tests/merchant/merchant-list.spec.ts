@@ -9,32 +9,32 @@ test.describe('Merchant List', () => {
     const loginPage = new LoginPage(page);
     merchantListPage = new MerchantListPage(page);
 
-    // --- BAGIAN PENTING UNTUK KEAMANAN ---
-    
-    // 1. Saat ngetes di laptop (agar tidak error), menggunakan IP ini:
+    // --- STRATEGI KEAMANAN ---
+    // Gunakan IP asli untuk running di laptop
     const baseUrl = 'http://103.139.192.123:9070'; 
-    
-    // 2. Nanti ketika di-push ke GitHub, ganti jadi localhost:
-    // const baseUrl = 'http://localhost:9070'; 
+    // const baseUrl = 'http://localhost:9070'; // Aktifkan ini hanya saat push ke GitHub
 
-    await page.goto(`${baseUrl}/login`);
+    // Tambahkan timeout manual di goto agar tidak langsung crash
+    await page.goto(`${baseUrl}/login`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     
-    // Gunakan akun dummy untuk GitHub, tapi pakai akun asli saat lokal
+    // Pastikan halaman benar-benar sudah menampilkan form login sebelum mengetik
     await loginPage.login('admindini@yopmail.com', 'DiniIntern2026!');
     
-    await expect(loginPage.signInButton).toBeHidden({ timeout: 15000 });
-    await page.goto(`${baseUrl}/merchant/list`);
+    // Tunggu proses login selesai dengan sabar
+    await expect(loginPage.signInButton).toBeHidden({ timeout: 20000 });
+    
+    await page.goto(`${baseUrl}/merchant/list`, { waitUntil: 'networkidle' });
     await merchantListPage.waitForLoaded();
   });
 
   test('searches merchant by merchant name', async () => {
-    const name = 'FS Regenera'; 
+    const name = 'FS Regenera'; // Pastikan sesuai data di tabel
     await merchantListPage.search(name);
     await merchantListPage.expectResultsContain(name);
   });
 
   test('searches merchant by merchant code', async () => {
-    const code = 'MRCHN-001';
+    const code = 'MRCHN-001'; // Kode ini valid di screenshot kamu
     await merchantListPage.search(code);
     await merchantListPage.expectResultsContain(code);
   });
