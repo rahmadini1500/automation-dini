@@ -1,17 +1,16 @@
-import { test } from '@playwright/test';
-
+import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/login.page';
-import { getCredentials } from '../../utils/env';
 
-test.use({ storageState: { cookies: [], origins: [] } });
+test('User can login successfully', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  
+  // Gunakan IP asli untuk ngetes lokal
+  const baseUrl = 'http://103.139.192.123:9070'; 
 
-test.describe('Login', () => {
-  test('shows error message for invalid password', async ({ page }) => {
-    const credentials = getCredentials();
-    const loginPage = new LoginPage(page);
+  // Memanggil fungsi goto yang sudah kita buat di atas
+  await loginPage.goto(baseUrl); 
+  await loginPage.login('admindini@yopmail.com', 'DiniIntern2026!');
 
-    await loginPage.goto();
-    await loginPage.login(credentials.email, credentials.invalidPassword);
-    await loginPage.assertLoginError('Email or Password is incorrect');
-  });
+  // Pastikan login berhasil (tombol sign in hilang)
+  await expect(loginPage.signInButton).toBeHidden();
 });

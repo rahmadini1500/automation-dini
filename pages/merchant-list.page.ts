@@ -1,4 +1,3 @@
-
 import { expect, type Locator, type Page } from '@playwright/test';
 
 export class MerchantListPage {
@@ -8,7 +7,6 @@ export class MerchantListPage {
 
   constructor(page: Page) {
     this.page = page;
-    // Mencari heading dan input search
     this.heading = page.getByText('Merchant List', { exact: true }).first();
     this.searchInput = page.locator('input[placeholder="Search"]').first();
   }
@@ -22,17 +20,15 @@ export class MerchantListPage {
     await this.searchInput.clear();
     await this.searchInput.fill(keyword);
     await this.searchInput.press('Enter');
-    // Jeda agar sistem selesai memfilter
     await this.page.waitForTimeout(2000); 
   }
 
   async expectResultsContain(keyword: string) {
-    // Menunggu tabel mengandung kata kunci
     try {
+      // Menunggu tabel mengandung kata kunci
       await expect(this.page.locator('tbody')).toContainText(keyword, { timeout: 10000 });
     } catch (e) {
       throw new Error(`Dini, data "${keyword}" tidak muncul di tabel!`);
     }
   }
 }
-
